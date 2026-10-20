@@ -130,13 +130,23 @@ function updatePrice() {
 days.addEventListener('change', updatePrice);
 
 function choose(method) {
-  tg.showAlert(
-    'Выбран срок: ' + days.value + ' дн.\\n' +
-    (method === 'stars'
-      ? 'Сумма: ' + (Number(days.value)*100) + ' Stars'
-      : 'Сумма: ' + (Number(days.value)*80) + ' ₴') +
-    '\\nСледующий этап — подключение оплаты к боту.'
-  );
+  const selectedDays = Number(days.value);
+
+  if (!Number.isInteger(selectedDays) || selectedDays < 1 || selectedDays > 30) {
+    tg.showAlert('Выбери срок от 1 до 30 дней.');
+    return;
+  }
+
+  if (method !== 'stars' && method !== 'card') {
+    tg.showAlert('Неизвестный способ оплаты.');
+    return;
+  }
+
+  tg.sendData(JSON.stringify({
+    action: 'buy',
+    method: method,
+    days: selectedDays
+  }));
 }
 function cabinet() {
   tg.showAlert('Личный кабинет подключим к данным твоего бота на следующем этапе.');
