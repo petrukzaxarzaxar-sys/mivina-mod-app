@@ -114,9 +114,11 @@ footer {text-align:center;color:#887996;font-size:12px;padding:15px;}
 <footer> MIVINA_MOD STORE · Secure digital access </footer>
 </div>
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
 
 const days = document.getElementById('days');
 const devices = document.getElementById('devices');
@@ -137,6 +139,11 @@ days.addEventListener('input', updatePrice);
 devices.addEventListener('input', updatePrice);
 
 function choose(method) {
+  if (!tg || typeof tg.sendData !== 'function') {
+    alert('Telegram WebApp API недоступен. Закрой магазин и открой его через кнопку «🚀 Открыть магазин» в чате с ботом.');
+    return;
+  }
+
   const selectedDays = Number(days.value);
   const selectedDevices = Number(devices.value);
 
@@ -155,12 +162,16 @@ function choose(method) {
     return;
   }
 
-  tg.sendData(JSON.stringify({
-    action: 'buy',
-    method: method,
-    days: selectedDays,
-    devices: selectedDevices
-  }));
+  try {
+    tg.sendData(JSON.stringify({
+      action: 'buy',
+      method: method,
+      days: selectedDays,
+      devices: selectedDevices
+    }));
+  } catch (e) {
+    tg.showAlert('Не удалось отправить заказ в Telegram. Закрой Mini App и открой его заново через кнопку магазина.');
+  }
 }
 function cabinet() {
   tg.showAlert('Личный кабинет подключим к данным твоего бота на следующем этапе.');
