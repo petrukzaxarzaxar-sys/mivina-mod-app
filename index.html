@@ -82,14 +82,12 @@ footer {text-align:center;color:#887996;font-size:12px;padding:15px;}
 
 <section class="card">
   <h2>🟣 Выбери срок</h2>
-  <label for="days">Срок лицензии</label>
-  <select id="days">
-    <option value="1">1 день</option>
-    <option value="3">3 дня</option>
-    <option value="7">7 дней</option>
-    <option value="14">14 дней</option>
-    <option value="30">30 дней</option>
-  </select>
+  <label for="days">Срок лицензии (1–30 дней)</label>
+  <input id="days" type="number" min="1" max="30" step="1" value="1">
+
+  <label for="devices">Количество устройств</label>
+  <input id="devices" type="number" min="1" step="1" value="1">
+  <p>Укажи любое положительное целое число устройств.</p>
   <div class="price">
     <span>💳 Перевод</span>
     <span class="amount" id="uah">80 ₴</span>
@@ -121,19 +119,34 @@ tg.ready();
 tg.expand();
 
 const days = document.getElementById('days');
+const devices = document.getElementById('devices');
+
 function updatePrice() {
+  const d = Number(days.value);
+  const n = Number(devices.value);
+  const valid = Number.isInteger(d) && d >= 1 && d <= 30 &&
+                Number.isSafeInteger(n) && n >= 1;
+
   document.getElementById('uah').textContent =
-    (Number(days.value) * 80) + ' ₴';
+    valid ? (d * n * 80).toLocaleString('uk-UA') + ' ₴' : '—';
   document.getElementById('stars').textContent =
-    (Number(days.value) * 100) + ' ⭐';
+    valid ? (d * n * 100).toLocaleString('uk-UA') + ' ⭐' : '—';
 }
-days.addEventListener('change', updatePrice);
+
+days.addEventListener('input', updatePrice);
+devices.addEventListener('input', updatePrice);
 
 function choose(method) {
   const selectedDays = Number(days.value);
+  const selectedDevices = Number(devices.value);
 
   if (!Number.isInteger(selectedDays) || selectedDays < 1 || selectedDays > 30) {
     tg.showAlert('Выбери срок от 1 до 30 дней.');
+    return;
+  }
+
+  if (!Number.isSafeInteger(selectedDevices) || selectedDevices < 1) {
+    tg.showAlert('Введи положительное целое количество устройств.');
     return;
   }
 
@@ -145,7 +158,8 @@ function choose(method) {
   tg.sendData(JSON.stringify({
     action: 'buy',
     method: method,
-    days: selectedDays
+    days: selectedDays,
+    devices: selectedDevices
   }));
 }
 function cabinet() {
