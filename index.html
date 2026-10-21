@@ -139,38 +139,34 @@ days.addEventListener('input', updatePrice);
 devices.addEventListener('input', updatePrice);
 
 function choose(method) {
-  if (!tg || typeof tg.sendData !== 'function') {
-    alert('Telegram WebApp API недоступен. Закрой магазин и открой его через кнопку «🚀 Открыть магазин» в чате с ботом.');
-    return;
-  }
-
   const selectedDays = Number(days.value);
   const selectedDevices = Number(devices.value);
 
   if (!Number.isInteger(selectedDays) || selectedDays < 1 || selectedDays > 30) {
-    tg.showAlert('Выбери срок от 1 до 30 дней.');
+    if (tg) tg.showAlert('Выбери срок от 1 до 30 дней.');
+    else alert('Выбери срок от 1 до 30 дней.');
     return;
   }
 
-  if (!Number.isSafeInteger(selectedDevices) || selectedDevices < 1) {
-    tg.showAlert('Введи положительное целое количество устройств.');
+  if (!Number.isSafeInteger(selectedDevices) || selectedDevices < 1 || selectedDevices > 1000) {
+    if (tg) tg.showAlert('Введи количество устройств от 1 до 1000.');
+    else alert('Введи количество устройств от 1 до 1000.');
     return;
   }
 
   if (method !== 'stars' && method !== 'card') {
-    tg.showAlert('Неизвестный способ оплаты.');
+    if (tg) tg.showAlert('Неизвестный способ оплаты.');
+    else alert('Неизвестный способ оплаты.');
     return;
   }
 
-  try {
-    tg.sendData(JSON.stringify({
-      action: 'buy',
-      method: method,
-      days: selectedDays,
-      devices: selectedDevices
-    }));
-  } catch (e) {
-    tg.showAlert('Не удалось отправить заказ в Telegram. Закрой Mini App и открой его заново через кнопку магазина.');
+  const payload = `buy_${method}_${selectedDays}_${selectedDevices}`;
+  const url = `https://t.me/Zeroxfiz_bot?start=${payload}`;
+
+  if (tg && typeof tg.openTelegramLink === 'function') {
+    tg.openTelegramLink(url);
+  } else {
+    window.location.href = url;
   }
 }
 function cabinet() {
