@@ -130,9 +130,9 @@ function updatePrice() {
                 Number.isSafeInteger(n) && n >= 1;
 
   document.getElementById('uah').textContent =
-    valid ? (d * n * 80).toLocaleString('uk-UA') + ' ₴' : '—';
+    valid ? (d * 80).toLocaleString('uk-UA') + ' ₴' : '—';
   document.getElementById('stars').textContent =
-    valid ? (d * n * 100).toLocaleString('uk-UA') + ' ⭐' : '—';
+    valid ? (d * 100).toLocaleString('uk-UA') + ' ⭐' : '—';
 }
 
 days.addEventListener('input', updatePrice);
